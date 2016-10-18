@@ -1,0 +1,10 @@
+{
+  "dbURL":"mongodb://chatsteamuser:p0o9i8u7@ds035750.mongolab.com:35750/chatsteam",
+  "sessionSecret":"randomFJALKWEJLKAJ",
+  "fb":{
+    "appID":"755655887846693",
+    "appSecret":"e526d714ff9f2913271567ff15d9e1c9",
+    "callbackURL": "http://localhost:9000/auth/facebook/callback"
+  },
+  "host": "http://localhost:9000"
+}

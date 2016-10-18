@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>ChatCAT - Chatrooms</title>
+	<link rel="stylesheet" href="../css/chatroom.css">
+	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script> <!-- Your Socket.IO server will handle serving the correct version of the Socket.IO client library; you should not be using one from elsewhere on the Internet. This works because you wrap your HTTP server in Socket.IO (see the example at How To Use) and it intercepts requests for /socket.io/socket.io.js and sends the appropriate response automatically. http://stackoverflow.com/questions/8689877/cant-find-socket-io-js  -->
+	<script>
+		$(function(){
+			var host = '{{config.host}}';
+			var socket = io.connect(host + '/roomlist');            // create a "namespace" /roomlist. this is not a route
+
+			socket.on('connect',function(){
+				console.log('Connection Established');
+			});
+
+			socket.on('givelist',function(data){                     // upon page refresh you want to persist the chat room list in the view
+				var procData = JSON.parse(data);
+				$('.roomlist').html('');
+				for(var i=0;i< procData.length; i++){
+					var str ="<a href='room/"+procData[i].room_number+"'><li>"+procData[i].room_name+"</li></a>"
+					$('.roomlist').prepend(str);
+				}
+			});
+
+			socket.on('roomupdate',function(data){
+				var procData = JSON.parse(data);
+				$('.roomlist').html('');                     // empty out the roomlist so the list is rendered from scratch
+				for(var i=0;i< procData.length; i++){
+					var str ="<a href='room/"+procData[i].room_number+"'><li>"+procData[i].room_name+"</li></a>"
+					$('.roomlist').prepend(str);
+				}
+			});
+
+			$(document).on('click','#create',function(){               // creates new room by emitting a 'newroom' event back to server.
+				var room_name = $('.newRoom').val();
+				if(room_name !=''){
+					var room_number = parseInt(Math.random()*10000);
+					socket.emit('newroom', {room_name: room_name, room_number: room_number});    // 'newroom' event is received by socket.js. the room data gets pushed in the array in backend
+					$('.newRoom').val('');
+				}
+			});
+		});
+
+
+
+	</script>
+</head>
+<body>
+	<div class="cr-container">
+		<h1 class="cr-title">ChatCAT</h1>
+		<div class="cr-userbox">
+			<img src="{{user.profilePic}}" class="userPic">
+			<h3 class="userName">{{user.fullname}} | <a href="/logout">Logout</a></h3>
+		</div>
+		<div class="cr-newroom">
+			<input type="text" class="newRoom" autocomplete="off">
+			<button id="create">Create Room</button>
+		</div>
+		<div class="cr-roomlist">
+			<ul class="roomlist">
+			</ul>
+		</div>
+	</div>
+</body>
+</html>
